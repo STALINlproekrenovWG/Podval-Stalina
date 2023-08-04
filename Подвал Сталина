@@ -1,0 +1,561 @@
+// ��������� ��������� �������� �������
+
+Damage.GetContext().FriendlyFire.Value = GameMode.Parameters.GetBool("Damage");
+
+Damage.GetContext().DamageOut.Value = GameMode.Parameters.GetBool("Damage");
+
+BreackGraph.OnlyPlayerBlocksDmg = GameMode.Parameters.GetBool("PartialDesruction");
+
+BreackGraph.WeakBlocks = GameMode.Parameters.GetBool("LoosenBlocks");
+
+Build.GetContext().FloodFill.Value = GameMode.Parameters.GetBool("FloodFill");
+
+Build.GetContext().FillQuad.Value = GameMode.Parameters.GetBool("FillQuad");
+
+Build.GetContext().RemoveQuad.Value = GameMode.Parameters.GetBool("RemoveQuad");
+
+Build.GetContext().FlyEnable.Value = GameMode.Parameters.GetBool("Fly");
+
+
+
+// ������ ��������� ������ ��� �����
+
+BreackGraph.BreackAll = true;
+
+// ���������� ���������� ������
+
+Ui.GetContext().QuadsCount.Value = true;
+
+// ��� ������������ �����
+
+Build.GetContext().Pipette.Value = true;
+
+Build.GetContext().BalkLenChange.Value = true;
+
+Build.GetContext().SetSkyEnable.Value = true;
+
+Build.GetContext().GenMapEnable.Value = true;
+
+Build.GetContext().ChangeCameraPointsEnable.Value = true;
+
+Build.GetContext().QuadChangeEnable.Value = true;
+
+Build.GetContext().BuildModeEnable.Value = true;
+
+Build.GetContext().CollapseChangeEnable.Value = true;
+
+Build.GetContext().RenameMapEnable.Value = true;
+
+Build.GetContext().ChangeMapAuthorsEnable.Value = true;
+
+Build.GetContext().LoadMapEnable.Value = true;
+
+Build.GetContext().ChangeSpawnsEnable.Value = true;
+
+
+
+// ��������� ����
+
+Properties.GetContext().GameModeName.Value = "GameModes/Peace";
+
+// ������� �������
+
+red = GameMode.Parameters.GetBool("RedTeam");
+
+blue = GameMode.Parameters.GetBool("BlueTeam");
+
+if (red || !red && !blue) {
+
+	Teams.Add("Red", "ТОЖЕ ПОДЫВАЛЫШИ", { r: 100 });
+
+	Teams.Get("Red").Spawns.SpawnPointsGroups.Add(2);
+
+}
+
+if (blue || !red && !blue) {
+
+	Teams.Add("Blue", "ПОДВАЛЫШИ", { b:17 });
+
+	Teams.Get("Blue").Spawns.SpawnPointsGroups.Add(1);
+
+// делаем игроков неу€звимыми после спавна
+
+var immortalityTimerName="immortality";
+
+Spawns.GetContext().OnSpawn.Add(function(player){
+
+	player.Properties.Immortality.Value=true;
+
+	timer=player.Timers.Get(immortalityTimerName).Restart(7);
+
+});
+
+// задаем что выводить в лидербордах
+
+LeaderBoard.PlayerLeaderBoardValues = [
+
+	{
+
+		Value: "Kills",
+
+		DisplayName: "<color=#720>K</a><color=#710>i</a><color=#720>l</a><color=#730>l</a><color=#740>s</a>",
+
+		ShortDisplayName: "<color=#720>K</a><color=#710>i</a><color=#720>l</a><color=#730>l</a><color=#740>s</a>"
+
+ },
+
+	{
+
+		Value: "Deaths",
+
+		DisplayName: "<color=#720>D</a><color=#710>e</a><color=#720>a</a><color=#730>t</a><color=#740>h</a><color=#740>s</a>",
+
+		ShortDisplayName: "<color=#720>D</a><color=#710>e</a><color=#720>a</a><color=#730>t</a><color=#740>h</a><color=#740>s</a>"
+
+ },
+
+	{
+
+Value: "Scores",
+
+		DisplayName: "<color=#720>К</a><color=#710>о</a><color=#720>п</a><color=#730>е</a><color=#740>й</a><color=#750>к</a> <color=#760>и</a>",
+
+		ShortDisplayName: "<color=#720>К</a><color=#710>о</a><color=#720>п</a><color=#730>е</a><color=#740>й</a><color=#750>к</a><color=#760>и</a>"
+
+	}
+
+];
+
+LeaderBoard.TeamLeaderBoardValue = {
+
+	Value: "Deaths",
+
+	DisplayName: "<color=#720>D</a><color=#710>e</a><color=#720>a</a><color=#730>t</a><color=#740>h</a><color=#740>s</a>",
+
+	ShortDisplayName: "<color=#720>D</a><color=#710>e</a><color=#720>a</a><color=#730>t</a><color=#740>h</a><color=#740>s</a>"
+
+};
+
+// вес команды в лидерборде
+
+LeaderBoard.TeamWeightGetter.Set(function(team) {
+
+	return team.Properties.Get("Deaths").Value;
+
+});
+
+// вес игрока в лидерборде
+
+LeaderBoard.PlayersWeightGetter.Set(function(player) {
+
+	return player.Properties.Get("Kills").Value;
+
+});
+
+// счетчик спавнов
+
+Spawns.OnSpawn.Add(function(player) {
+
+	++player.Properties.Spawns.Value;
+
+});
+
+// счетчик смертей
+
+Damage.OnDeath.Add(function(player) {
+
+	++player.Properties.Deaths.Value;
+
+});
+
+// счетчик убийств
+
+Damage.OnKill.Add(function(player, killed) {
+
+	if (killed.Team != null && killed.Team != player.Team) {
+
+		++player.Properties.Kills.Value;
+
+		player.Properties.Scores.Value += 100;
+
+	}
+
+});
+
+Timers.OnPlayerTimer.Add(function(timer){
+
+	if(timer.Id!=immortalityTimerName) return;
+
+	timer.Player.Properties.Immortality.Value=false;
+
+});	if(GameMode.Parameters.GetBool("BlueHasNothing")){
+
+		var inventory = Inventory.GetContext();
+
+		Teams.Get("Blue").Inventory.Main.Value = false;
+
+		Teams.Get("Blue").Inventory.Secondary.Value = false;
+
+		Teams.Get("Blue").Inventory.Melee.Value = false;
+
+		Teams.Get("Blue").Inventory.Explosive.Value = false;
+
+		Teams.Get("Blue").Inventory.Build.Value = false;
+
+	}
+
+}
+
+
+
+// ��������� ���� � ������� �� �������
+
+Teams.OnRequestJoinTeam.Add(function(player,team){team.Add(player);
+
+Players.Get("A5028CF46836FBCF").Build.Pipette.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.FloodFill.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.FillQuad.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.RemoveQuad.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.BalkLenChange.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.FlyEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.SetSkyEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.GenMapEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.ChangeCameraPointsEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.QuadChangeEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.BuildModeEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.CollapseChangeEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.RenameMapEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.ChangeMapAuthorsEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.LoadMapEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.ChangeSpawnsEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Build.BuildRangeEnable.Value = true; 
+
+Players.Get("A5028CF46836FBCF").Damage.DamageIn.Value = true; 
+
+Players.Get("A5028CF46836FBCF").inventory.Main.Value = true; 
+
+Players.Get("A5028CF46836FBCF").inventory.MainInfinity.Value = true; 
+
+Players.Get("A5028CF46836FBCF").inventory.Secoondary.Value = true; 
+
+Players.Get("A5028CF46836FBCF").inventory.SecoondaryInfinity.Value = true; 
+
+Players.Get("A5028CF46836FBCF").inventory.Melee.Value = true;
+
+
+
+Players.Get("A5028CF46836FBCF").inventory.Explosive.Value = true; 
+
+Players.Get("A5028CF46836FBCF").inventory.ExplosiveInfinity.Value = true; 
+
+Players.Get("A5028CF46836FBCF").inventory.Build.Value = true; 
+
+Players.Get("A5028CF46836FBCF").inventory.BuildInfinity.Value = true; 
+
+Players.Get("A5028CF46836FBCF").contextedProperties.MaxHp.Value = 100000;
+
+});
+
+var ochki =
+
+AreaPlayerTriggerService.Get("ochki"); 
+
+ochki.Tags = ["ochki"]; 
+
+ochki.Enable = true; 
+
+ochki.OnEnter.Add(function (player, area) {
+
+player.Properties.Scores.Value += 50; 
+
+});
+
+// ����� �� ����� � �������
+
+Teams.OnPlayerChangeTeam.Add(function(player){ player.Spawns.Spawn()});
+
+var begi =
+
+AreaPlayerTriggerService.Get("begi"); 
+
+begi.Tags = ["begi"]; 
+
+begi.Enable = true; 
+
+begi.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = "Беги!"; 
+
+}); 
+
+var begi2 =
+
+AreaPlayerTriggerService.Get("begi2"); 
+
+begi2.Tags = ["begi2"]; 
+
+begi2.Enable = true; 
+
+begi2.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = "Ты сбежал!"; 
+
+}); 
+
+var svet =
+
+AreaPlayerTriggerService.Get("svet"); 
+
+svet.Tags = ["svet"]; 
+
+svet.Enable = true; 
+
+svet.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = "Прячься в шкаф!"; 
+
+});
+
+var exit =
+
+AreaPlayerTriggerService.Get("exit"); 
+
+exit.Tags = ["exit"]; 
+
+exit.Enable = true; 
+
+exit.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = "[Вы]Туда не добраться...";
+
+});
+
+var chto =
+
+AreaPlayerTriggerService.Get("chto"); 
+
+chto.Tags = ["chto"]; 
+
+chto.Enable = true; 
+
+chto.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = "[Вы]Да что за чертовщина!?!";
+
+});
+
+var klych =
+
+AreaPlayerTriggerService.Get("klych"); 
+
+klych.Tags = ["klych"]; 
+
+klych.Enable = true; 
+
+klych.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = "Ключ!";
+
+});
+
+var labi =
+
+AreaPlayerTriggerService.Get("labi"); 
+
+labi.Tags = ["labi"]; 
+
+labi.Enable = true; 
+
+labi.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = " [Вы]Лабиринт...";
+
+});
+
+
+
+var kto =
+
+AreaPlayerTriggerService.Get("kto"); 
+
+kto.Tags = ["kto"]; 
+
+kto.Enable = true; 
+
+kto.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = "[Вы]Кто разрушил магазин???";
+
+});
+
+var semki =
+
+AreaPlayerTriggerService.Get("semki"); 
+
+semki.Tags = ["semki"]; 
+
+semki.Enable = true; 
+
+semki.OnEnter.Add(function (player, area) {
+
+player.Ui.Hint.Value = "[Гопник]Семки есть? А если найду?";
+
+});
+
+var admin = AreaPlayerTriggerService.Get("admin"); 
+
+admin.Tags = ["admin"]; 
+
+admin.Enable = true; 
+
+admin.OnEnter.Add(function (player, area) {
+
+player.Build.FloodFill.Value = true;
+
+player.Build.FillQuad.Value = true;
+
+player.Build.RemoveQuad.Value = true;
+
+player.Damage.DamageIn.Value = false;
+
+player.inventory.Main.Value = true; 
+
+player.inventory.MainInfinity.Value = true; 
+
+player.inventory.Secondary.Value = true; 
+
+player.inventory.SecondaryInfinity.Value = true; 
+
+ 
+
+player.inventory.Melee.Value = true; 
+
+player.inventory.Explosive.Value = true; 
+
+player.inventory.ExplosiveInfinity.Value = true; 
+
+player.inventory.Build.Value = true; 
+
+player.inventory.BuildInfinity.Value = true; 
+
+Build.GetContext().BlocksSet.Value = BuildBlocksSet.AllClear; 
+
+player.Build.FlyEnable.Value = true; 
+
+player.Ui.Hint.Value = player + " + Admin/On"; 
+
+
+
+});
+
+var rest =
+
+AreaPlayerTriggerService.Get("rest"); 
+
+rest.Tags = ["rest"]; 
+
+rest.Enable = true; 
+
+rest.OnEnter.Add(function (player, area) {
+
+Game.RestartGame(); 
+
+});
+
+AreaPlayerTriggerService.Get("tps").Tags = ["tps"];
+
+AreaPlayerTriggerService.Get("tps").Enable = true;
+
+AreaPlayerTriggerService.Get("tps").OnEnter.Add(function(player){player.Spawns.Spawn();});
+
+var ban =
+
+AreaPlayerTriggerService.Get("ban"); 
+
+ban.Tags = ["ban"]; 
+
+ban.Enable = true; 
+
+ban.OnEnter.Add(function (player, area) {
+
+player.Spawns.Enable = false;
+
+player.Spawns.Despawn();
+
+player.Ui.Hint.Value = player + " + !БАН!/On"; 
+
+});
+
+
+
+// ������ ���������
+
+Ui.getContext().Hint.Value = "Добро пожаловать";
+
+
+
+// ������������ ���������
+
+var inventory = Inventory.GetContext();
+
+inventory.Main.Value = false;
+
+inventory.Secondary.Value = false;
+
+inventory.Melee.Value = false;
+
+inventory.Explosive.Value = false;
+
+inventory.Build.Value = false;
+
+inventory.BuildInfinity.Value = false;
+
+
+
+// ��������� ��� ������ �����
+
+Build.GetContext().BlocksSet.Value = BuildBlocksSet.AllClear;
+
+var des = "<color=lime>ПОДВАЛ</a>";
+
+
+
+Teams.Get("Red").Properties.Get("Des").Value = des; 
+
+
+
+Ui.GetContext().TeamProp1.Value = { Team: "Red", Prop: "Des" };
+
+
+
+var res = "<color=lime>СТАЛИНА</a>";
+
+
+
+Teams.Get("Blue").Properties.Get("Res").Value = res; 
+
+
+
+Ui.GetContext().TeamProp2.Value = { Team: "Blue", Prop: "Res" };
+
+
+
+// ������������ �����
+
+Spawns.GetContext().RespawnTime.Value = 12;
